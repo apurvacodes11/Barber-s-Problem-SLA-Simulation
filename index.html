@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Sleeping Barber — Semaphore Simulation</title>
+<style>
+:root{--brown:#56382c;--brown2:#795641;--cream:#f6eee5;--paper:#fffdf9;--line:#e4d4c5;--ink:#302720;--muted:#806f62;--green:#3f7654;--red:#a64d42;--gold:#c69a63}
+*{box-sizing:border-box}body{margin:0;background:#f4f0eb;color:var(--ink);font:14px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif}
+.app{max-width:1180px;margin:auto;padding:22px 16px}.header{display:flex;justify-content:space-between;gap:16px;align-items:center;margin-bottom:18px}.eyebrow{font-size:11px;letter-spacing:1.3px;text-transform:uppercase;font-weight:800;color:var(--brown2)}h1{font-size:clamp(23px,3vw,31px);line-height:1.15;margin:5px 0}.subtitle{margin:0;color:var(--muted)}.tag{font-size:12px;background:#eadbca;color:var(--brown);padding:7px 10px;border-radius:20px;font-weight:800;white-space:nowrap}
+.layout{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(300px,.9fr);gap:16px;align-items:start}.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-bottom:14px;box-shadow:0 2px 8px #40291908}.cardhead{padding:13px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.cardhead h2{font-size:14px;margin:0}.body{padding:15px}.shop{background:#fbf6ef;padding:18px;min-height:310px}.shopgrid{display:grid;grid-template-columns:.8fr 1.2fr;gap:18px;align-items:start}.barber{text-align:center;padding:14px 0}.barberchair{width:90px;height:95px;margin:0 auto 12px;background:#e4c5a8;border:2px solid #a47c5b;border-radius:23px 23px 12px 12px;display:flex;align-items:center;justify-content:center;position:relative}.barberchair:before{content:"";position:absolute;bottom:-12px;width:42px;height:12px;background:#a47c5b;border-radius:0 0 5px 5px}.person{width:32px}.head{width:20px;height:20px;border-radius:50%;background:#bc9678;border:1px solid #9a7358;margin:0 auto 3px}.torso{height:34px;background:#76513e;border-radius:8px 8px 4px 4px}.pill{display:inline-block;background:#eee1d3;color:var(--brown);padding:5px 10px;border-radius:20px;font-size:12px;font-weight:800;margin-top:6px}.pill.busy{background:#dceadd;color:#2f6542}.muted{color:var(--muted);font-size:12px}.waitingtitle{font-size:13px;font-weight:800;margin:0 0 10px}.chairs{display:grid;grid-template-columns:repeat(3,minmax(54px,1fr));gap:8px}.seat{height:70px;border:1px solid #d8c2ae;background:#f3e7da;border-radius:8px;display:flex;align-items:center;justify-content:center;position:relative}.seat.empty{background:#fffaf4;border-style:dashed}.seat.occupied{background:#ead2bc}.seat .person{transform:scale(.7)}.seatlabel{position:absolute;bottom:4px;font-size:10px;color:var(--muted)}.queuetext{font-size:12px;color:var(--muted);margin-top:10px;min-height:18px}.customerchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:18px;padding-top:14px;border-top:1px solid var(--line)}.customerchip{font-size:11px;font-weight:800;border-radius:20px;padding:5px 8px;background:#e8d7c6;color:var(--brown)}.customerchip.served{background:#dceadd;color:#2f6542}.customerchip.waiting{background:#ead2bc;color:#674329}.customerchip.rejected{background:#f3deda;color:#963f35}.customerchip.active{background:var(--brown);color:white}
+.controls{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-size:12px;font-weight:750;color:var(--brown);margin-bottom:5px}.field input{width:100%;padding:9px;border:1px solid #d9c7b6;border-radius:7px;background:#fff;color:var(--ink);font:inherit}.field input:focus{outline:2px solid #cda77f;outline-offset:1px}.hint{font-size:11px;color:var(--muted);margin-top:4px}.modes{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:13px}.mode{border:1px solid #d8c2ae;background:#fffaf5;border-radius:8px;padding:10px;cursor:pointer;text-align:left;color:var(--ink)}.mode.selected{border:2px solid var(--brown);padding:9px;background:#f4e8dc}.mode strong{display:block;font-size:12px}.mode span{font-size:11px;color:var(--muted);display:block;margin-top:3px}.buttons{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.btn{border:1px solid #cbb39e;border-radius:7px;padding:9px 13px;font:inherit;font-size:12px;font-weight:750;cursor:pointer;background:#f2e6d9;color:var(--brown)}.btn.primary{background:var(--brown);color:#fff;border-color:var(--brown)}.btn:disabled{opacity:.45;cursor:not-allowed}.speed{display:flex;align-items:center;gap:10px;margin-top:13px;font-size:12px;color:var(--muted)}.speed input{flex:1;accent-color:var(--brown)}.status{background:#f6eee5;border-radius:8px;padding:10px 12px;margin-top:13px;font-size:12px;color:var(--brown)}.error{color:#963f35;font-size:12px;margin-top:8px;min-height:16px}.metrics{display:grid;grid-template-columns:1fr 1fr;gap:9px}.metric{padding:11px;border:1px solid var(--line);border-radius:8px}.metric span{display:block;font-size:11px;color:var(--muted)}.metric strong{font-size:22px;color:var(--brown)}.semaphores{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}.sem{background:#f6eee5;padding:9px;border-radius:8px;text-align:center}.sem span{display:block;font-size:11px;color:var(--muted)}.sem strong{font-size:19px;color:var(--brown)}.note{font-size:11px;color:var(--muted);margin:9px 0 0}.sectiontitle{font-size:12px;font-weight:800;color:var(--brown);margin:13px 0 6px}.serviceorder{font-size:12px;font-weight:750;line-height:1.8;overflow-wrap:anywhere;padding:5px 0}.tablewrap{max-height:230px;overflow:auto;border:1px solid var(--line);border-radius:8px}.waittable{border-collapse:collapse;width:100%;font-size:11px}.waittable th,.waittable td{text-align:left;padding:7px 6px;border-bottom:1px solid var(--line)}.waittable th{position:sticky;top:0;background:#f6eee5;color:var(--muted)}.eventtoggle{width:100%;display:flex;justify-content:space-between;align-items:center;border:0;background:transparent;font:inherit;font-weight:800;color:var(--ink);cursor:pointer;padding:0}.events{display:none;max-height:240px;overflow:auto;font-size:12px}.events.open{display:block}.event{padding:7px 0;border-bottom:1px solid var(--line)}.eventtime{color:var(--muted);font-size:10px}.footnote{font-size:11px;color:var(--muted);margin-top:10px}
+@media(max-width:800px){.layout{grid-template-columns:1fr}.header{align-items:flex-start}.tag{display:none}.shopgrid{grid-template-columns:.7fr 1.3fr}}
+@media(max-width:470px){.app{padding:12px 9px}.controls{grid-template-columns:1fr}.modes{grid-template-columns:1fr}.shopgrid{grid-template-columns:1fr}.barber{padding:4px}.chairs{grid-template-columns:repeat(2,minmax(54px,1fr))}}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="header"><div><div class="eyebrow">Operating Systems · Self-Learning Activity</div><h1>Sleeping Barber Problem</h1><p class="subtitle">A visual simulation of synchronization, waiting chairs, and FIFO fairness.</p></div><div class="tag">Stage 2 · Working Model</div></header>
+<div class="layout">
+<main>
+<section class="card"><div class="cardhead"><h2>Barber shop</h2><span class="tag" id="tick">Tick 0</span></div><div class="shop"><div class="shopgrid"><div class="barber"><div class="barberchair"><div class="person"><div class="head"></div><div class="torso"></div></div></div><div id="barberstatus" class="pill">Sleeping</div><p id="barbercaption" class="muted">Waiting for a customer</p></div><div><p class="waitingtitle">Waiting room <span id="chaircount">(3 chairs)</span></p><div id="chairs" class="chairs"></div><div id="queue" class="queuetext">No customers waiting</div></div></div><div id="customers" class="customerchips"><span class="muted">Customers appear here during the run.</span></div></div></section>
+<section class="card"><div class="cardhead"><h2>Simulation controls</h2></div><div class="body">
+<div class="modes"><button class="mode selected" id="traditional"><strong>Traditional semaphore model</strong><span>Illustrative non-FIFO wake-up order; fairness is not guaranteed.</span></button><button class="mode" id="fifo"><strong>Modified FIFO</strong><span>Oldest waiting customer is served first.</span></button></div>
+<div class="controls">
+<div class="field"><label for="n">Waiting chairs</label><input id="n" type="number" min="0" max="12" value="3"><div class="hint">0 tests a shop with no waiting room.</div></div>
+<div class="field"><label for="total">Total customers</label><input id="total" type="number" min="1" max="40" value="12"></div>
+<div class="field"><label for="arrival">Arrival interval (ticks)</label><input id="arrival" type="number" min="1" max="20" value="1"></div>
+<div class="field"><label for="haircut">Haircut duration (ticks)</label><input id="haircut" type="number" min="1" max="20" value="4"></div>
+</div>
+<div class="buttons"><button class="btn primary" id="start">▶ Start</button><button class="btn" id="pause" disabled>Ⅱ Pause</button><button class="btn" id="step" >Step →</button><button class="btn" id="reset">↻ Reset</button></div>
+<div class="speed"><label for="speed">Speed</label><input id="speed" type="range" min="1" max="5" value="3"><span id="speedlabel">3×</span></div>
+<div class="status" id="status">Ready. Select Start or Step.</div><div class="error" id="error" role="alert"></div>
+</div></section>
+</main>
+<aside>
+<section class="card"><div class="cardhead"><h2>Live results</h2></div><div class="body">
+<div class="metrics">
+<div class="metric"><span>Haircuts completed</span><strong id="completed">0</strong></div>
+<div class="metric"><span>Customers turned away</span><strong id="rejected">0</strong></div>
+<div class="metric"><span>Waiting now</span><strong id="waitingnow">0</strong></div>
+<div class="metric"><span>Average wait (ticks)</span><strong id="avgwait">0.0</strong></div>
+<div class="metric"><span>Longest wait (ticks)</span><strong id="maxwait">0</strong></div>
+</div>
+<div class="sectiontitle">Service order</div><div id="serviceorder" class="serviceorder">No customers served yet.</div>
+<div class="sectiontitle">Individual customer results</div><div class="tablewrap"><table class="waittable"><thead><tr><th>Customer</th><th>Wait</th><th>Status</th></tr></thead><tbody id="waittable"><tr><td colspan="3">Run the simulation to see results.</td></tr></tbody></table></div>
+<div class="semaphores"><div class="sem"><span>customers</span><strong id="semcustomers">0</strong></div><div class="sem"><span>barber</span><strong id="sembarber">0</strong></div><div class="sem"><span>mutex</span><strong id="semmutex">1</strong></div></div>
+<p class="note">Semaphore values are conceptual indicators for this browser model, not live POSIX semaphore values.</p>
+</div></section>
+<section class="card"><div class="cardhead"><button id="eventbutton" class="eventtoggle" aria-expanded="false"><span>Event log</span><span id="eventarrow">＋</span></button></div><div class="body"><div id="events" class="events"></div></div></section>
+<section class="card"><div class="cardhead"><h2>How to compare</h2></div><div class="body"><p class="muted" style="margin:0">Run both versions with identical settings. The traditional demonstration selects the newest waiting customer first; Modified FIFO selects the oldest. The turned-away count may be identical because capacity is unchanged. Compare service order and individual waits.</p></div></section>
+</aside>
+</div></div>
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+let state=null, timer=null, paused=true, speed=3;
+function config(){
+ const n=Number($('n').value),total=Number($('total').value),arrival=Number($('arrival').value),haircut=Number($('haircut').value);
+ const fields=[['Waiting chairs',n,0,12],['Total customers',total,1,40],['Arrival interval',arrival,1,20],['Haircut duration',haircut,1,20]];
+ for(const [name,v,min,max] of fields){if(!Number.isInteger(v)||v<min||v>max)throw new Error(name+` must be an integer from ${min} to ${max}.`);}
+ return {n,total,arrival,haircut,mode:$('fifo').classList.contains('selected')?'fifo':'traditional'};
+}
+function log(msg){if(!state)return;const row=document.createElement('div');row.className='event';row.innerHTML=`<span class="eventtime">Tick ${state.tick}</span> — ${msg.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}`;$('events').prepend(row);}
+function resetState(c){
+ stop();paused=true;
+ state={...c,tick:0,nextArrival:1,arrived:0,waiting:[],current:null,finishAt:null,completed:[],rejected:[],waits:[],waitById:{},serviceOrder:[],done:false};
+ $('events').innerHTML='';log(`Ready: ${c.mode==='fifo'?'Modified FIFO':'Traditional semaphore model'}; ${c.n} waiting chair(s), ${c.total} customer(s).`);
+ $('status').textContent='Ready. Select Start to run automatically or Step to advance one tick.';$('error').textContent='';
+ render();buttons();
+}
+function beginHaircut(c){
+ state.current=c;state.finishAt=state.tick+state.haircut;
+ const waited=state.tick-c.arrivalTick;state.waits.push(waited);state.waitById[c.id]=waited;state.serviceOrder.push(c.id);
+ log(`Customer ${c.id} starts service after waiting ${waited} tick(s).`);
+}
+function step(){
+ if(!state||state.done)return;
+ state.tick++;
+ // 1. Complete haircut if due.
+ if(state.current&&state.finishAt<=state.tick){
+  const id=state.current.id;state.completed.push(id);log(`Customer ${id} finished service.`);state.current=null;state.finishAt=null;
+ }
+ // 2. If barber is free, select someone who was already waiting before this tick's arrival.
+ if(!state.current&&state.waiting.length){
+  const c=state.mode==='fifo'?state.waiting.shift():state.waiting.pop();
+  log(state.mode==='fifo'?`FIFO selects oldest waiting customer ${c.id}.`:`Traditional illustrative non-FIFO selection selects newest waiting customer ${c.id}.`);
+  beginHaircut(c);
+ }
+ // 3. Process one scheduled arrival.
+ if(state.arrived<state.total&&state.tick>=state.nextArrival){
+  const c={id:++state.arrived,arrivalTick:state.tick};
+  log(`Customer ${c.id} arrives.`);
+  if(!state.current){beginHaircut(c);}
+  else if(state.waiting.length<state.n){state.waiting.push(c);log(`Customer ${c.id} takes a waiting chair (${state.waiting.length}/${state.n}).`);}
+  else{state.rejected.push(c.id);log(`Shop full; customer ${c.id} leaves.`);}
+  state.nextArrival=state.tick+state.arrival;
+ }
+ if(state.arrived===state.total&&!state.current&&state.waiting.length===0){
+  state.done=true;paused=true;stop();
+  $('status').textContent=`Complete: ${state.completed.length} haircut(s), ${state.rejected.length} turned away.`;
+  log('All customers have been handled.');
+ }else if(!paused){$('status').textContent='Simulation running.';}
+ render();buttons();
+}
+function stop(){if(timer){clearInterval(timer);timer=null;}}
+function buttons(){
+ $('start').disabled=!!(state&&state.done)||!paused;
+ $('pause').disabled=!state||state.done||paused;
+ $('step').disabled=!!(state&&state.done);
+}
+function start(){
+ try{
+  const c=config();
+  if(!state||state.done||state.n!==c.n||state.total!==c.total||state.arrival!==c.arrival||state.haircut!==c.haircut||state.mode!==c.mode)resetState(c);
+  if(!state.done){paused=false;buttons();const ms=700/(speed||3);timer=setInterval(()=>{if(!paused)step();},ms);$('status').textContent='Simulation running.';}
+ }catch(e){$('error').textContent=e.message;}
+}
+function pause(){paused=true;stop();buttons();if(state&&!state.done)$('status').textContent='Paused. Select Start or Step to continue.';}
+function manualStep(){try{const c=config();if(!state||state.done||state.n!==c.n||state.total!==c.total||state.arrival!==c.arrival||state.haircut!==c.haircut||state.mode!==c.mode)resetState(c);paused=true;stop();step();}catch(e){$('error').textContent=e.message;}}
+function reset(){try{resetState(config());}catch(e){$('error').textContent=e.message;}}
+function render(){
+ if(!state)return;
+ $('tick').textContent=`Tick ${state.tick}`;$('chaircount').textContent=`(${state.n} chair${state.n===1?'':'s'})`;
+ $('chairs').innerHTML='';
+ for(let i=0;i<state.n;i++){const c=state.waiting[i],el=document.createElement('div');el.className='seat '+(c?'occupied':'empty');el.innerHTML=c?`<div class="person"><div class="head"></div><div class="torso"></div></div><span class="seatlabel">Customer ${c.id}</span>`:`<span class="seatlabel">Seat ${i+1}</span>`;$('chairs').appendChild(el);}
+ $('queue').textContent=state.waiting.length?'Waiting order (oldest → newest): '+state.waiting.map(c=>c.id).join(' → '):'No customers waiting';
+ $('barberstatus').textContent=state.current?`Serving #${state.current.id}`:state.done?'Finished':'Sleeping';
+ $('barberstatus').className='pill '+(state.current?'busy':'');
+ $('barbercaption').textContent=state.current?`Haircut ends at tick ${state.finishAt}`:state.done?'All customers handled':'Waiting for a customer';
+ $('customers').innerHTML=state.arrived?Array.from({length:state.arrived},(_,i)=>{const id=i+1;let cls=state.completed.includes(id)?'served':state.rejected.includes(id)?'rejected':state.current?.id===id?'active':state.waiting.some(c=>c.id===id)?'waiting':'customerchip';return `<span class="customerchip ${cls}">#${id}</span>`}).join(''):'<span class="muted">Customers appear here during the run.</span>';
+ $('completed').textContent=state.completed.length;$('rejected').textContent=state.rejected.length;$('waitingnow').textContent=state.waiting.length;
+ $('avgwait').textContent=(state.waits.length?state.waits.reduce((a,b)=>a+b,0)/state.waits.length:0).toFixed(1);$('maxwait').textContent=state.waits.length?Math.max(...state.waits):0;
+ $('serviceorder').textContent=state.serviceOrder.length?state.serviceOrder.map(id=>'#'+id).join(' → '):'No customers served yet.';
+ $('waittable').innerHTML=state.arrived?Array.from({length:state.arrived},(_,i)=>{const id=i+1;const status=state.rejected.includes(id)?'Turned away':state.completed.includes(id)?'Finished':state.current&&state.current.id===id?'In service':state.waiting.some(c=>c.id===id)?'Waiting':state.waitById[id]!==undefined?'Served':'Arrived';const wt=state.waitById[id]!==undefined?state.waitById[id]:'—';return `<tr><td>#${id}</td><td>${wt}</td><td>${status}</td></tr>`}).join(''):'<tr><td colspan="3">Run the simulation to see results.</td></tr>';
+ $('semcustomers').textContent=state.waiting.length;$('sembarber').textContent=state.current?'1':'0';$('semmutex').textContent='1';
+}
+function selectMode(mode){
+ $('traditional').classList.toggle('selected',mode==='traditional');$('fifo').classList.toggle('selected',mode==='fifo');
+ $('traditional').setAttribute('aria-pressed',String(mode==='traditional'));$('fifo').setAttribute('aria-pressed',String(mode==='fifo'));
+ try{resetState(config());}catch(e){$('error').textContent=e.message;}
+}
+$('traditional').addEventListener('click',()=>selectMode('traditional'));$('fifo').addEventListener('click',()=>selectMode('fifo'));
+$('start').addEventListener('click',start);$('pause').addEventListener('click',pause);$('step').addEventListener('click',manualStep);$('reset').addEventListener('click',reset);
+$('speed').addEventListener('input',e=>{$('speedlabel').textContent=e.target.value+'×';speed=Number(e.target.value);if(timer&&!paused){stop();timer=setInterval(()=>{if(!paused)step();},700/speed);}});
+$('eventbutton').addEventListener('click',()=>{const open=$('events').classList.toggle('open');$('eventbutton').setAttribute('aria-expanded',String(open));$('eventarrow').textContent=open?'−':'＋';});
+try{resetState(config());}catch(e){$('error').textContent=e.message;}
+</script>
+</body></html>
